@@ -64,26 +64,7 @@ public class FileX extends JFrame {
 				File f = null;
 				if (modelo.getValueAt(index, 4) instanceof File) {
 					f = (File) modelo.getValueAt(index, 4);
-					if (f.isDirectory()) {
-						
-						modelo = new DefaultTableModel();
-						modelo.setDataVector(null, columnNames);
-						modelo.setColumnCount(5);
-						fillTable(new File(f.getPath()));
-						table.setModel(modelo);
-						contentPane.repaint();
-						table.repaint();
-						tfLocation.setText(f.getPath());
-					} else if (f.isFile() && Desktop.isDesktopSupported()) {
-						Desktop d = Desktop.getDesktop();
-						try {
-							d.open(f);
-						} catch (IOException e1) {
-							//TODO ventana error
-							e1.printStackTrace();
-							System.out.println("No se pudo abrir el archivo");
-						}
-					}
+					accionEn(f);
 
 				}
 			}
@@ -92,6 +73,21 @@ public class FileX extends JFrame {
 		contentPane.add(btnAction);
 		
 		tfLocation = new JTextField();
+		tfLocation.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String text = tfLocation.getText();
+				File f = new File(text);
+				if (f.isDirectory() && f.exists()) {
+					//TODO asistir al usuario en la busqueda
+					accionEn(f);
+
+				}
+				else{
+					//TODO ventana de error
+					System.out.println("Directorio no encontrado");
+				}
+			}
+		});
 		tfLocation.setBounds(20, 10, 1230, 39);
 		contentPane.add(tfLocation);
 		tfLocation.setColumns(10);
@@ -147,4 +143,27 @@ public class FileX extends JFrame {
 			}
 		}
 	}
+	private void accionEn(File f){
+		if (f.isDirectory()) {
+			modelo = new DefaultTableModel();
+			modelo.setDataVector(null, columnNames);
+			modelo.setColumnCount(5);
+			fillTable(new File(f.getPath()));
+			table.setModel(modelo);
+			contentPane.repaint();
+			table.repaint();
+			tfLocation.setText(f.getPath());
+		} else if (f.isFile() && Desktop.isDesktopSupported()) {
+			Desktop d = Desktop.getDesktop();
+			try {
+				d.open(f);
+			} catch (IOException e1) {
+				// TODO ventana error
+				e1.printStackTrace();
+				System.out.println("No se pudo abrir el archivo");
+			}
+		}
+		
+	}
+
 }
