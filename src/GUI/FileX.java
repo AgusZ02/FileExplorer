@@ -1,7 +1,8 @@
+package GUI;
 
 
-import java.awt.EventQueue;
-import java.io.File;
+import java.awt.Desktop;
+import java.io.*;
 import java.util.Vector;
 
 import javax.swing.JFrame;
@@ -14,31 +15,26 @@ import javax.swing.JTable;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import javax.swing.JTextField;
 
 public class FileX extends JFrame {
 
 	private JPanel contentPane;
 	private JTable table = new JTable();
 	private DefaultTableModel modelo = new DefaultTableModel();
-	private final String[] columnNames = {"Nombre", "Creacion", "Tipo", "Tamaño"};
+	private final String[] columnNames = {"Nombre", "Creacion", "Tipo", "Tamaño", "Ubicación"};
 	private JScrollPane scrollPane = new JScrollPane();
+	private JTextField tfLocation;
+	private File actualLocation;
 
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					FileX frame = new FileX();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
+	public FileX(){
+		this("C://");
 	}
 
-
-	public FileX() {
-
+	public FileX(String loc) {
+		
+		actualLocation = new File(loc);
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1280, 720);
 		contentPane = new JPanel();
@@ -50,12 +46,12 @@ public class FileX extends JFrame {
 		table.setBounds(30, 10, 396, 243);
 		modelo.setDataVector(null, columnNames);
 		modelo.setColumnCount(5);
-		fillTable(new File("C:\\"));
+		fillTable(actualLocation);
 		table.setModel(modelo);		
 		//contentPane.add(table);
 
 		//setContentPane(contentPane);
-		scrollPane.setBounds(20, 20, this.getBounds().width-50, this.getBounds().height-96);
+		scrollPane.setBounds(20, 59, 1230, 585);
 		scrollPane.setViewportView(table);
 		table.setDefaultEditor(Object.class, null);
 		contentPane.setLayout(null);
@@ -77,12 +73,29 @@ public class FileX extends JFrame {
 						table.setModel(modelo);
 						contentPane.repaint();
 						table.repaint();
+						tfLocation.setText(f.getPath());
+					} else if (f.isFile() && Desktop.isDesktopSupported()) {
+						Desktop d = Desktop.getDesktop();
+						try {
+							d.open(f);
+						} catch (IOException e1) {
+							//TODO ventana error
+							e1.printStackTrace();
+							System.out.println("No se pudo abrir el archivo");
+						}
 					}
+
 				}
 			}
 		});
 		btnAction.setBounds(20, 654, 85, 21);
 		contentPane.add(btnAction);
+		
+		tfLocation = new JTextField();
+		tfLocation.setBounds(20, 10, 1230, 39);
+		contentPane.add(tfLocation);
+		tfLocation.setColumns(10);
+		tfLocation.setText(actualLocation.getAbsolutePath());
 	}
 
 	public void fillTable(final File folder) {
@@ -115,8 +128,6 @@ public class FileX extends JFrame {
 					//Casilla de tamaño (nulo)
 					row.add("-------------");
 				} else {
-					
-					
 					//Casilla de tipo de archivo
 					String[] arr = fileEntry.getName().split("\\.");
 					if (arr.length == 2) {
@@ -134,6 +145,6 @@ public class FileX extends JFrame {
 				modelo.addRow(row);
 				
 			}
-			}
 		}
+	}
 }
