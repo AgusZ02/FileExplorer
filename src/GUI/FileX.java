@@ -61,13 +61,9 @@ public class FileX extends JFrame {
 		btnAction = new JButton("Aceptar");
 		btnAction.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int index = table.getSelectedRow();
-				File f = null;
-				if (modelo.getValueAt(index, 4) instanceof File) {
-					f = (File) modelo.getValueAt(index, 4);
-					accionEn(f);
 
-				}
+				File selectedFile = (File) modelo.getValueAt(table.getSelectedRow(), 4);	
+				accionEn(selectedFile);
 			}
 		});
 		btnAction.setBounds(20, 654, 85, 21);
@@ -104,6 +100,29 @@ public class FileX extends JFrame {
 		});
 		btnNuevo.setBounds(115, 654, 85, 21);
 		contentPane.add(btnNuevo);
+		
+		JButton btnBorrar = new JButton("Eliminar");
+		btnBorrar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				File selectedFile = (File) modelo.getValueAt(table.getSelectedRow(), 4);					
+				// En caso de ser directorio, borra todos los datos.
+				if (selectedFile.isDirectory() && selectedFile.list().length > 0) {
+					for (File f : selectedFile.listFiles()) {
+						f.delete();
+					}
+				}
+				
+				try {
+					selectedFile.delete();
+					accionEn(currentLocation);
+				} catch (Exception e3) {
+					//TODO ventana de error, no se ha podido eliminar
+					System.out.println("No se ha podido eliminar");
+				}
+			}
+		});
+		btnBorrar.setBounds(210, 654, 85, 21);
+		contentPane.add(btnBorrar);
 	}
 
 	public static void fillTable(final File folder) {
