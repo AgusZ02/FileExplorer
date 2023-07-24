@@ -19,21 +19,21 @@ import javax.swing.JTextField;
 
 public class FileX extends JFrame {
 
-	private JPanel contentPane;
-	private JTable table = new JTable();
-	private DefaultTableModel modelo = new DefaultTableModel();
-	private final String[] columnNames = {"Nombre", "Creacion", "Tipo", "Tamaño", "Ubicación"};
+	private static JPanel contentPane;
+	private static JTable table = new JTable();
+	private static DefaultTableModel modelo = new DefaultTableModel();
+	private final static String[] columnNames = {"Nombre", "Creacion", "Tipo", "Tamaño", "Ubicación"};
 	private JScrollPane scrollPane = new JScrollPane();
-	private JTextField tfLocation;
-	private File actualLocation;
-
+	private static JTextField tfLocation;
+	private static File currentLocation;
+	private JButton btnAction, btnNuevo;
 	public FileX(){
 		this("C://");
 	}
 
 	public FileX(String loc) {
 		
-		actualLocation = new File(loc);
+		currentLocation = new File(loc);
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1280, 720);
@@ -46,7 +46,8 @@ public class FileX extends JFrame {
 		table.setBounds(30, 10, 396, 243);
 		modelo.setDataVector(null, columnNames);
 		modelo.setColumnCount(5);
-		fillTable(actualLocation);
+		fillTable(currentLocation
+);
 		table.setModel(modelo);		
 		//contentPane.add(table);
 
@@ -57,7 +58,7 @@ public class FileX extends JFrame {
 		contentPane.setLayout(null);
 		contentPane.add(scrollPane);
 		
-		JButton btnAction = new JButton("Aceptar");
+		btnAction = new JButton("Aceptar");
 		btnAction.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int index = table.getSelectedRow();
@@ -91,10 +92,21 @@ public class FileX extends JFrame {
 		tfLocation.setBounds(20, 10, 1230, 39);
 		contentPane.add(tfLocation);
 		tfLocation.setColumns(10);
-		tfLocation.setText(actualLocation.getAbsolutePath());
+		tfLocation.setText(currentLocation.getAbsolutePath());
+		
+		btnNuevo = new JButton("Nuevo");
+		btnNuevo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JFrame frame = new CrearGUI(currentLocation);
+				frame.setVisible(true);
+
+			}
+		});
+		btnNuevo.setBounds(115, 654, 85, 21);
+		contentPane.add(btnNuevo);
 	}
 
-	public void fillTable(final File folder) {
+	public static void fillTable(final File folder) {
 			//Directorio superior
 			Vector<Object> row = new Vector<>();
 			try {
@@ -115,7 +127,7 @@ public class FileX extends JFrame {
 				//Casilla de nombre de fichero
 				row.add(fileEntry.getName());
 				//Casilla de fecha
-				//TODO
+				//TODO^^^^^^
 				row.add("fecha");
 				
 				if (fileEntry.isDirectory()) {
@@ -143,7 +155,7 @@ public class FileX extends JFrame {
 			}
 		}
 	}
-	private void accionEn(File f){
+	private static void accionEn(File f){
 		if (f.isDirectory()) {
 			modelo = new DefaultTableModel();
 			modelo.setDataVector(null, columnNames);
@@ -153,6 +165,7 @@ public class FileX extends JFrame {
 			contentPane.repaint();
 			table.repaint();
 			tfLocation.setText(f.getPath());
+			currentLocation = f;
 		} else if (f.isFile() && Desktop.isDesktopSupported()) {
 			Desktop d = Desktop.getDesktop();
 			try {
@@ -166,4 +179,9 @@ public class FileX extends JFrame {
 		
 	}
 
+
+	public static void refresh(){
+		accionEn(currentLocation);
+
+	}
 }
