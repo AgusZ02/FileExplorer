@@ -1,4 +1,4 @@
-package main;
+
 
 import java.awt.EventQueue;
 import java.io.File;
@@ -50,7 +50,7 @@ public class FileX extends JFrame {
 		table.setBounds(30, 10, 396, 243);
 		modelo.setDataVector(null, columnNames);
 		modelo.setColumnCount(5);
-		fillTable(new File("C:\\Users\\agus\\Desktop"));
+		fillTable(new File("C:\\"));
 		table.setModel(modelo);		
 		//contentPane.add(table);
 
@@ -86,8 +86,22 @@ public class FileX extends JFrame {
 	}
 
 	public void fillTable(final File folder) {
-			for (final File fileEntry : folder.listFiles()) {
-				Vector<Object> row = new Vector<Object>();
+			//Directorio superior
+			Vector<Object> row = new Vector<>();
+			try {
+				row.add("///////DIRECTORIO ANTERIOR///////");
+				row.add("--------------");
+				row.add("--------------");
+				row.add("--------------");
+				row.add(new File(folder.getParent()));
+				modelo.addRow(row);
+				
+			} catch (Exception e) {
+				System.out.println("Directorio raiz");
+			} finally{
+			
+				for (final File fileEntry : folder.listFiles()) {
+				row = new Vector<Object>();
 				
 				//Casilla de nombre de fichero
 				row.add(fileEntry.getName());
@@ -120,6 +134,6 @@ public class FileX extends JFrame {
 				modelo.addRow(row);
 				
 			}
-			
+			}
 		}
 }
