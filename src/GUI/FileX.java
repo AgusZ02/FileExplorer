@@ -28,7 +28,7 @@ public class FileX extends JFrame {
 	private static File currentLocation;
 	private JButton btnAction, btnNuevo;
 	public FileX(){
-		this("C://");
+		this("C:\\Users\\agus\\Desktop");
 	}
 
 	public FileX(String loc) {
@@ -154,7 +154,8 @@ public class FileX extends JFrame {
 					try{
 						row.add(fileEntry.listFiles().length + " items");
 					} catch(NullPointerException e){
-						row.add(0 + "/Inaccesible");
+						//continue; //<-- Esta línea para no mostrar directorios inaccesibles
+						row.add(0 + "/Inaccesible"); //<-- Esta línea para mostrar directorios inaccesibles
 					}
 
 				} else {
