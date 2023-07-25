@@ -109,12 +109,12 @@ public class FileX extends JFrame {
 				
 				
 				if (selectedFile.isDirectory() && selectedFile.list().length > 0) {
-					for (File f : selectedFile.listFiles()) {
-						f.delete();
-					}
+					
 					vAvisos = new AvisoGUI("Este directorio contiene: " + selectedFile.list().length + "items. Estás seguro?", "Confirmar eliminación de directorio", true);
                     vAvisos.setVisible(true);
 					//TODO, borrar sólo si se elige "Aceptar" en la ventana de avisos.
+					eliminarFicheros(selectedFile);
+					
 				}
 				
 				try {
@@ -216,4 +216,22 @@ public class FileX extends JFrame {
 		accionEn(currentLocation);
 
 	}
+
+	private boolean eliminarFicheros(File current){
+		
+		for (File f : current.listFiles()) {
+			if (f.isFile()) {
+				f.delete();
+			} else if (f.isDirectory()) {
+				if (f.list().length == 0) {
+					f.delete();
+				} else {
+					eliminarFicheros(f);
+					
+				}
+			}
+		}
+		current.delete();
+		return true;
+	} 
 }
