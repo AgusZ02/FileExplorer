@@ -18,7 +18,7 @@ public class CrearGUI extends JFrame{
     private JRadioButton rdbtnCarpeta, rdbtnArchivo;
     private JLabel lblNombre, lblExtension;
     private JComboBox<String> comboBox;
-    private DefaultComboBoxModel<String> model;
+    
     private final String[] extensiones = {".txt"};
     private boolean folder = true;
     private JFrame vAvisos;

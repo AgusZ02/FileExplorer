@@ -28,6 +28,7 @@ public class FileX extends JFrame {
 	private static File currentLocation;
 	private JButton btnAction, btnNuevo;
 	private JFrame vAvisos;
+	
 	public FileX(){
 		this("C:\\Users\\agus\\Desktop");
 	}
@@ -131,7 +132,15 @@ public class FileX extends JFrame {
 		contentPane.add(btnBorrar);
 	}
 
-	public static void fillTable(final File folder) {
+
+	/**
+	 * Método para listar todos los items del directorio folder.
+	 * Crea un vector con la siguiente info de cada item:
+	 * Nombre, última modificación, tipo de dato, tamaño en bytes
+	 * Y se añade a la tabla.
+	 * @param folder el directorio del que se quieren listar los items.
+	 */
+	public static void fillTable(File folder) {
 			//Directorio superior
 			Vector<Object> row = new Vector<>();
 			try {
@@ -186,6 +195,12 @@ public class FileX extends JFrame {
 			}
 		}
 	}
+	/**
+	 * Este método es llamado cada vez que se efectúe una acción en un archivo o directorio desde la aplicación.
+	 * Si es carpeta, limpia la GUI y se listan los items del directorio nuevo
+	 * Si es archivo, se abre este mismo.
+	 * @param f La ruta al archivo/directorio que se quiere ejercer la acción.
+	 */
 	private static void accionEn(File f){
 		if (f.isDirectory()) {
 			modelo = new DefaultTableModel();
@@ -217,7 +232,10 @@ public class FileX extends JFrame {
 
 	}
 
-	private boolean eliminarFicheros(File current){
+	/**
+	 * Algoritmo recursivo para eliminar todos los datos de las carpetas dentro de una carpeta.
+	 */
+	private void eliminarFicheros(File current){
 		
 		for (File f : current.listFiles()) {
 			if (f.isFile()) {
@@ -232,6 +250,5 @@ public class FileX extends JFrame {
 			}
 		}
 		current.delete();
-		return true;
 	} 
 }
