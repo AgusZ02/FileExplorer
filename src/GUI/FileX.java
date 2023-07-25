@@ -3,15 +3,12 @@ package GUI;
 
 import java.awt.Desktop;
 import java.io.*;
-import java.sql.Date;
 import java.util.Vector;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.*;
-
 import javax.swing.JTable;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
@@ -152,7 +149,11 @@ public class FileX extends JFrame {
 					//Casilla de tipo
 					row.add("Carpeta");
 					//Casilla de tamaño (nulo)
-					row.add("-------------");
+					try{
+						row.add(fileEntry.listFiles().length + " items");
+					} catch(NullPointerException e){
+						row.add(0 + "/Inaccesible");
+					}
 
 				} else {
 					//Casilla de fecha
