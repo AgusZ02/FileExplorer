@@ -16,19 +16,25 @@ import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextField;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class FileX extends JFrame {
 
 	private static JPanel contentPane;
 	private static JTable table = new JTable();
-	private static DefaultTableModel modelo;
-	private final static String[] columnNames = {"Nombre", "Última modificación", "Tipo", "Tamaño"};
+	private static JTable tableFavs = new JTable();
+	private static DefaultTableModel modelo, modeloFavs;
+	private final static String[] columnNamesMain = {"Nombre", "Última modificación", "Tipo", "Tamaño"};
+
 	private JScrollPane scrollPane = new JScrollPane();
 	private static JTextField tfLocation;
 	private static File currentLocation;
-	private JButton btnAction, btnNuevo;
+	private JButton btnAction, btnNuevo, btnBorrar;
 	private JFrame vAvisos;
-	
+	private final File[] favoritos = {new File("C:\\Users\\agus\\Desktop"), new File("C:\\Users\\agus\\Documents"), new File("C:\\Users\\agus\\Downloads"), new File("C:\\Users\\agus\\Pictures"), new File("C:\\")};
+	private JScrollPane scrollPane_1 = new JScrollPane();
+
 	public FileX(){
 		this("C:\\Users\\agus\\Desktop");
 	}
@@ -55,7 +61,7 @@ public class FileX extends JFrame {
 
 				}
 				else{
-					vAvisos = new AvisoGUI("Error, no se halla el directorio.", "Error al buscar el directorio", null, false);
+					vAvisos = new AvisoGUI("Error, no se halla el directorio.", "Error al buscar el directorio", new Exception(""), false);
                     vAvisos.setVisible(true);
 					System.out.println("Directorio no encontrado");
 				}
@@ -66,14 +72,52 @@ public class FileX extends JFrame {
 		tfLocation.setColumns(10);
 		tfLocation.setText(currentLocation.getAbsolutePath());
 
+
 		
+		modeloFavs = new DefaultTableModel();
+		modeloFavs.setDataVector(null, columnNamesMain);
+		modeloFavs.setColumnCount(5);
+		for (File f : favoritos) {
+			Vector<Object> row = new Vector<>();
+			row.add(f.getName());
+			row.add(f.getName());
+			row.add(f.getName());
+			row.add(f.getName());
+			row.add(f);
+			modeloFavs.addRow(row);
+		}
+		tableFavs.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				if (table.getSelectedRow()!=-1) {
+					table.getSelectionModel().clearSelection();
+				}
+			}
+		});
+		tableFavs.setModel(modeloFavs);
+		
+		tableFavs.getColumnModel().removeColumn(tableFavs.getColumnModel().getColumn(4));
+		tableFavs.getColumnModel().removeColumn(tableFavs.getColumnModel().getColumn(3));
+		tableFavs.getColumnModel().removeColumn(tableFavs.getColumnModel().getColumn(2));
+		tableFavs.getColumnModel().removeColumn(tableFavs.getColumnModel().getColumn(1));
+		scrollPane_1.setBounds(10, 59, 286, 585);
+		scrollPane_1.setViewportView(tableFavs);
+		contentPane.add(scrollPane_1);
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (tableFavs.getSelectedRow()!=-1) {
+					tableFavs.getSelectionModel().clearSelection();
+				}
+			}
+		});
+		
+	
+
+
 		table.setBounds(30, 10, 396, 243);
 		accionEn(currentLocation);
-		
-		//contentPane.add(table);
-
-		//setContentPane(contentPane);
-		scrollPane.setBounds(20, 59, 1230, 585);
+		scrollPane.setBounds(306, 59, 944, 585);
 		scrollPane.setViewportView(table);
 		table.setDefaultEditor(Object.class, null);
 		contentPane.setLayout(null);
@@ -82,8 +126,12 @@ public class FileX extends JFrame {
 		btnAction = new JButton("Aceptar");
 		btnAction.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
-				File selectedFile = (File) modelo.getValueAt(table.getSelectedRow(), 4);	
+				File selectedFile = null;
+				if (tableFavs.getSelectionModel().isSelectionEmpty()) {
+					selectedFile = (File) modelo.getValueAt(table.getSelectedRow(), 4);	
+				} else{
+					selectedFile = (File) modeloFavs.getValueAt(tableFavs.getSelectedRow(), 4);		
+				}
 				accionEn(selectedFile);
 			}
 		});
@@ -102,7 +150,7 @@ public class FileX extends JFrame {
 		btnNuevo.setBounds(115, 654, 85, 21);
 		contentPane.add(btnNuevo);
 		
-		JButton btnBorrar = new JButton("Eliminar");
+		btnBorrar = new JButton("Eliminar");
 		btnBorrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				File selectedFile = (File) modelo.getValueAt(table.getSelectedRow(), 4);					
@@ -111,7 +159,7 @@ public class FileX extends JFrame {
 				
 				if (selectedFile.isDirectory() && selectedFile.list().length > 0) {
 					
-					vAvisos = new AvisoGUI("Este directorio contiene: " + selectedFile.list().length + "items. Estás seguro?", "Confirmar eliminación de directorio", null, true);
+					vAvisos = new AvisoGUI("Este directorio contiene: " + selectedFile.list().length + "items. Estás seguro?", "Confirmar eliminación de directorio", new Exception(""), true);
                     vAvisos.setVisible(true);
 					//TODO, borrar sólo si se elige "Aceptar" en la ventana de avisos.
 					eliminarFicheros(selectedFile);
@@ -130,6 +178,8 @@ public class FileX extends JFrame {
 		});
 		btnBorrar.setBounds(210, 654, 85, 21);
 		contentPane.add(btnBorrar);
+		
+		
 	}
 
 
@@ -204,7 +254,7 @@ public class FileX extends JFrame {
 	private static void accionEn(File f){
 		if (f.isDirectory()) {
 			modelo = new DefaultTableModel();
-			modelo.setDataVector(null, columnNames);
+			modelo.setDataVector(null, columnNamesMain);
 			modelo.setColumnCount(5);
 			fillTable(new File(f.getPath()));
 			table.setModel(modelo);
@@ -251,4 +301,5 @@ public class FileX extends JFrame {
 		}
 		current.delete();
 	} 
+
 }

@@ -6,20 +6,26 @@ import javax.swing.SwingConstants;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 public class AvisoGUI extends JFrame{
+	private JLabel lblAviso;
+	private JButton btnAceptar, btnCancelar;
+	private JTextArea textArea;
+	
+	
 	public AvisoGUI(String mensaje, String nombreVentana, Exception e, boolean confirmacion) {
+		btnCancelar = null;
+		textArea = null;
 		getContentPane().setLayout(null);
 		this.setTitle(nombreVentana);
-		JLabel lblAviso = new JLabel(mensaje);
+		lblAviso = new JLabel(mensaje);
 		lblAviso.setVerticalAlignment(SwingConstants.TOP);
 		lblAviso.setBounds(10, 10, 416, 61);
 		getContentPane().add(lblAviso);
 		
 		setBounds(100, 100, 447, 201);
-		JButton btnAceptar = new JButton("Aceptar");
+		btnAceptar = new JButton("Aceptar");
 		btnAceptar.setSize(90, 41);
 		btnAceptar.setLocation(175, 113);
 		btnAceptar.addActionListener(new ActionListener() {
@@ -30,16 +36,14 @@ public class AvisoGUI extends JFrame{
 		getContentPane().add(btnAceptar);
 		
 		if (e!=null) {
-			JTextArea textArea = new JTextArea();
+			textArea = new JTextArea();
 			textArea.setBounds(10, 81, 416, 116);
-			textArea.setText(e.getMessage());
 			getContentPane().add(textArea);
-			
 		}
 		
         if (confirmacion) {
             btnAceptar.setBounds(110, 232, 85, 21);
-            JButton btnCancelar = new JButton("Cancelar");
+            btnCancelar = new JButton("Cancelar");
 		    btnCancelar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
                 dispose();

@@ -4,9 +4,7 @@ import javax.swing.JFrame;
 import javax.swing.JRadioButton;
 import javax.swing.JButton;
 import javax.swing.JTextField;
-import javax.swing.border.EmptyBorder;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JComboBox;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -79,7 +77,7 @@ public class CrearGUI extends JFrame{
                     }
                     
                 } else{
-                    vAvisos = new AvisoGUI("Error al crear, caja de texto vacía.", "Texto vacío", null,false);
+                    vAvisos = new AvisoGUI("Error al crear, caja de texto vacía.", "Texto vacío", new Exception(""),false);
                     vAvisos.setVisible(true);
                 }
                 
