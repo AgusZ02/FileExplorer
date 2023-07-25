@@ -3,6 +3,8 @@ package GUI;
 
 import java.awt.Desktop;
 import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Vector;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -20,7 +22,7 @@ public class FileX extends JFrame {
 	private static JPanel contentPane;
 	private static JTable table = new JTable();
 	private static DefaultTableModel modelo;
-	private final static String[] columnNames = {"Nombre", "Creacion", "Tipo", "Tamaño", "Ubicación"};
+	private final static String[] columnNames = {"Nombre", "Última modificación", "Tipo", "Tamaño"};
 	private JScrollPane scrollPane = new JScrollPane();
 	private static JTextField tfLocation;
 	private static File currentLocation;
@@ -143,9 +145,9 @@ public class FileX extends JFrame {
 				row.add(fileEntry.getName());
 				
 				
+				//Casilla de fecha
+				row.add(new SimpleDateFormat("MM-dd-yyyy").format(new Date(fileEntry.lastModified())));
 				if (fileEntry.isDirectory()) {
-					//Casilla de fecha
-					row.add("-------------");
 					//Casilla de tipo
 					row.add("Carpeta");
 					//Casilla de tamaño (nulo)
@@ -156,9 +158,6 @@ public class FileX extends JFrame {
 					}
 
 				} else {
-					//Casilla de fecha
-					row.add("-------------");
-					//row.add(new Date(fileEntry.lastModified()));
 					//Casilla de tipo de archivo
 					String[] arr = fileEntry.getName().split("\\.");
 					if (arr.length == 2) {
