@@ -3,6 +3,7 @@ package GUI;
 
 import java.awt.Desktop;
 import java.io.*;
+import java.sql.Date;
 import java.util.Vector;
 
 import javax.swing.JFrame;
@@ -21,7 +22,7 @@ public class FileX extends JFrame {
 
 	private static JPanel contentPane;
 	private static JTable table = new JTable();
-	private static DefaultTableModel modelo = new DefaultTableModel();
+	private static DefaultTableModel modelo;
 	private final static String[] columnNames = {"Nombre", "Creacion", "Tipo", "Tamaño", "Ubicación"};
 	private JScrollPane scrollPane = new JScrollPane();
 	private static JTextField tfLocation;
@@ -42,33 +43,6 @@ public class FileX extends JFrame {
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 
-		
-		table.setBounds(30, 10, 396, 243);
-		modelo.setDataVector(null, columnNames);
-		modelo.setColumnCount(5);
-		fillTable(currentLocation
-);
-		table.setModel(modelo);		
-		//contentPane.add(table);
-
-		//setContentPane(contentPane);
-		scrollPane.setBounds(20, 59, 1230, 585);
-		scrollPane.setViewportView(table);
-		table.setDefaultEditor(Object.class, null);
-		contentPane.setLayout(null);
-		contentPane.add(scrollPane);
-		
-		btnAction = new JButton("Aceptar");
-		btnAction.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				File selectedFile = (File) modelo.getValueAt(table.getSelectedRow(), 4);	
-				accionEn(selectedFile);
-			}
-		});
-		btnAction.setBounds(20, 654, 85, 21);
-		contentPane.add(btnAction);
-		
 		tfLocation = new JTextField();
 		tfLocation.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -89,6 +63,31 @@ public class FileX extends JFrame {
 		contentPane.add(tfLocation);
 		tfLocation.setColumns(10);
 		tfLocation.setText(currentLocation.getAbsolutePath());
+
+		
+		table.setBounds(30, 10, 396, 243);
+		accionEn(currentLocation);
+		
+		//contentPane.add(table);
+
+		//setContentPane(contentPane);
+		scrollPane.setBounds(20, 59, 1230, 585);
+		scrollPane.setViewportView(table);
+		table.setDefaultEditor(Object.class, null);
+		contentPane.setLayout(null);
+		contentPane.add(scrollPane);
+		
+		btnAction = new JButton("Aceptar");
+		btnAction.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				File selectedFile = (File) modelo.getValueAt(table.getSelectedRow(), 4);	
+				accionEn(selectedFile);
+			}
+		});
+		btnAction.setBounds(20, 654, 85, 21);
+		contentPane.add(btnAction);
+		
 		
 		btnNuevo = new JButton("Nuevo");
 		btnNuevo.addActionListener(new ActionListener() {
@@ -145,16 +144,20 @@ public class FileX extends JFrame {
 				
 				//Casilla de nombre de fichero
 				row.add(fileEntry.getName());
-				//Casilla de fecha
-				//TODO^^^^^^
-				row.add("fecha");
+				
 				
 				if (fileEntry.isDirectory()) {
+					//Casilla de fecha
+					row.add("-------------");
 					//Casilla de tipo
 					row.add("Carpeta");
 					//Casilla de tamaño (nulo)
 					row.add("-------------");
+
 				} else {
+					//Casilla de fecha
+					row.add("-------------");
+					//row.add(new Date(fileEntry.lastModified()));
 					//Casilla de tipo de archivo
 					String[] arr = fileEntry.getName().split("\\.");
 					if (arr.length == 2) {
@@ -181,6 +184,7 @@ public class FileX extends JFrame {
 			modelo.setColumnCount(5);
 			fillTable(new File(f.getPath()));
 			table.setModel(modelo);
+			table.getColumnModel().removeColumn(table.getColumnModel().getColumn(4));
 			contentPane.repaint();
 			table.repaint();
 			tfLocation.setText(f.getPath());
