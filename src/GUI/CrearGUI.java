@@ -21,6 +21,7 @@ public class CrearGUI extends JFrame{
     private DefaultComboBoxModel<String> model;
     private final String[] extensiones = {".txt"};
     private boolean folder = true;
+    private JFrame vAvisos;
     public CrearGUI(File currentLocation) {
 		getContentPane().setLayout(null);
 		
@@ -52,7 +53,6 @@ public class CrearGUI extends JFrame{
 				if (!tfNombre.getText().isBlank()) {
                     String folderName = tfNombre.getText();
                     File newFile = null;
-                    //TODO 
                     if (folder) {
                        newFile = new File(currentLocation.getPath()+"//"+folderName);
                         try {
@@ -60,7 +60,8 @@ public class CrearGUI extends JFrame{
                             FileX.refresh();
                             dispose();
                         } catch (Exception ex) {
-                            //TODO ventana error, no se ha podido crear
+                            vAvisos = new AvisoGUI("Error, no se ha podido crear el directorio.", "Error al crear el directorio", false);
+                            vAvisos.setVisible(true);
                         } 
                     } else {
                         newFile = new File(currentLocation + "//" + folderName + (String)comboBox.getSelectedItem());
@@ -69,14 +70,16 @@ public class CrearGUI extends JFrame{
                             FileX.refresh();
                             dispose();
                         } catch (IOException e1) {
-                            // TODO: ventana error, no se ha podido crear el archivo
+                            vAvisos = new AvisoGUI("Error, no se ha podido crear el archivo " + newFile.getName(), "Error al crear el archivo", false);
+                            vAvisos.setVisible(true);
                             System.out.println("No se ha podido crear el archivo " + newFile);
                             e1.printStackTrace();
                         }
                     }
                     
                 } else{
-                    //TODO ventana error: texto vacio
+                    vAvisos = new AvisoGUI("Error al crear, caja de texto vacía.", "Texto vacío", false);
+                    vAvisos.setVisible(true);
                 }
                 
 			}

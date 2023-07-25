@@ -27,6 +27,7 @@ public class FileX extends JFrame {
 	private static JTextField tfLocation;
 	private static File currentLocation;
 	private JButton btnAction, btnNuevo;
+	private JFrame vAvisos;
 	public FileX(){
 		this("C:\\Users\\agus\\Desktop");
 	}
@@ -53,7 +54,8 @@ public class FileX extends JFrame {
 
 				}
 				else{
-					//TODO ventana de error
+					vAvisos = new AvisoGUI("Error, no se halla el directorio.", "Error al buscar el directorio", false);
+                    vAvisos.setVisible(true);
 					System.out.println("Directorio no encontrado");
 				}
 			}
@@ -104,17 +106,23 @@ public class FileX extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				File selectedFile = (File) modelo.getValueAt(table.getSelectedRow(), 4);					
 				// En caso de ser directorio, borra todos los datos.
+				
+				
 				if (selectedFile.isDirectory() && selectedFile.list().length > 0) {
 					for (File f : selectedFile.listFiles()) {
 						f.delete();
 					}
+					vAvisos = new AvisoGUI("Este directorio contiene: " + selectedFile.list().length + "items. Estás seguro?", "Confirmar eliminación de directorio", true);
+                    vAvisos.setVisible(true);
+					//TODO, borrar sólo si se elige "Aceptar" en la ventana de avisos.
 				}
 				
 				try {
 					selectedFile.delete();
 					accionEn(currentLocation);
 				} catch (Exception e3) {
-					//TODO ventana de error, no se ha podido eliminar
+					vAvisos = new AvisoGUI("Error, no se ha podido eliminar.", "Error al eliminar", false);
+                    vAvisos.setVisible(true);
 					System.out.println("No se ha podido eliminar");
 				}
 			}
@@ -195,14 +203,14 @@ public class FileX extends JFrame {
 			try {
 				d.open(f);
 			} catch (IOException e1) {
-				// TODO ventana error
+				JFrame vAvisos = new AvisoGUI("Error, no se puede abrir el archivo.", "Error al abrir el archivo.", false);
+                vAvisos.setVisible(true);
 				e1.printStackTrace();
 				System.out.println("No se pudo abrir el archivo");
 			}
 		}
 		
 	}
-
 
 	public static void refresh(){
 		accionEn(currentLocation);
