@@ -55,7 +55,7 @@ public class FileX extends JFrame {
 
 				}
 				else{
-					vAvisos = new AvisoGUI("Error, no se halla el directorio.", "Error al buscar el directorio", false);
+					vAvisos = new AvisoGUI("Error, no se halla el directorio.", "Error al buscar el directorio", null, false);
                     vAvisos.setVisible(true);
 					System.out.println("Directorio no encontrado");
 				}
@@ -111,7 +111,7 @@ public class FileX extends JFrame {
 				
 				if (selectedFile.isDirectory() && selectedFile.list().length > 0) {
 					
-					vAvisos = new AvisoGUI("Este directorio contiene: " + selectedFile.list().length + "items. Estás seguro?", "Confirmar eliminación de directorio", true);
+					vAvisos = new AvisoGUI("Este directorio contiene: " + selectedFile.list().length + "items. Estás seguro?", "Confirmar eliminación de directorio", null, true);
                     vAvisos.setVisible(true);
 					//TODO, borrar sólo si se elige "Aceptar" en la ventana de avisos.
 					eliminarFicheros(selectedFile);
@@ -122,7 +122,7 @@ public class FileX extends JFrame {
 					selectedFile.delete();
 					accionEn(currentLocation);
 				} catch (Exception e3) {
-					vAvisos = new AvisoGUI("Error, no se ha podido eliminar.", "Error al eliminar", false);
+					vAvisos = new AvisoGUI("Error, no se ha podido eliminar.", "Error al eliminar", e3,  false);
                     vAvisos.setVisible(true);
 					System.out.println("No se ha podido eliminar");
 				}
@@ -218,7 +218,7 @@ public class FileX extends JFrame {
 			try {
 				d.open(f);
 			} catch (IOException e1) {
-				JFrame vAvisos = new AvisoGUI("Error, no se puede abrir el archivo.", "Error al abrir el archivo.", false);
+				JFrame vAvisos = new AvisoGUI("Error, no se puede abrir el archivo.", "Error al abrir el archivo.", e1, false);
                 vAvisos.setVisible(true);
 				e1.printStackTrace();
 				System.out.println("No se pudo abrir el archivo");

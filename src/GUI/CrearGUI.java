@@ -2,10 +2,11 @@ package GUI;
 
 import javax.swing.JFrame;
 import javax.swing.JRadioButton;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JComboBox;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -24,7 +25,7 @@ public class CrearGUI extends JFrame{
     private JFrame vAvisos;
     public CrearGUI(File currentLocation) {
 		getContentPane().setLayout(null);
-		
+		setBounds(100, 100, 460, 210);
 		rdbtnCarpeta = new JRadioButton("Carpeta");
 		rdbtnCarpeta.setSelected(true);
         rdbtnCarpeta.addActionListener(new ActionListener() {
@@ -60,7 +61,7 @@ public class CrearGUI extends JFrame{
                             FileX.refresh();
                             dispose();
                         } catch (Exception ex) {
-                            vAvisos = new AvisoGUI("Error, no se ha podido crear el directorio.", "Error al crear el directorio", false);
+                            vAvisos = new AvisoGUI("Error, no se ha podido crear el directorio.", "Error al crear el directorio", ex, false);
                             vAvisos.setVisible(true);
                         } 
                     } else {
@@ -70,7 +71,7 @@ public class CrearGUI extends JFrame{
                             FileX.refresh();
                             dispose();
                         } catch (IOException e1) {
-                            vAvisos = new AvisoGUI("Error, no se ha podido crear el archivo " + newFile.getName(), "Error al crear el archivo", false);
+                            vAvisos = new AvisoGUI("Error, no se ha podido crear el archivo " + newFile.getName(), "Error al crear el archivo", e1, false);
                             vAvisos.setVisible(true);
                             System.out.println("No se ha podido crear el archivo " + newFile);
                             e1.printStackTrace();
@@ -78,7 +79,7 @@ public class CrearGUI extends JFrame{
                     }
                     
                 } else{
-                    vAvisos = new AvisoGUI("Error al crear, caja de texto vacía.", "Texto vacío", false);
+                    vAvisos = new AvisoGUI("Error al crear, caja de texto vacía.", "Texto vacío", null,false);
                     vAvisos.setVisible(true);
                 }
                 
