@@ -20,8 +20,7 @@ public class FileX extends JFrame {
 	private static JPanel contentPane;
 	private static JTable table = new JTable();
 	private static JTable tableFavs = new JTable();
-	private static DefaultTableModel modelo, modeloFavs, tmpModel;
-	
+	private static DefaultTableModel modelo, modeloFavs;
 	private final static String[] columnNamesMain = {"Nombre", "Última modificación", "Tipo", "Tamaño"};
 	private JScrollPane scrollPane = new JScrollPane();
 	private static JTextField tfLocation;
@@ -31,53 +30,12 @@ public class FileX extends JFrame {
 	private final File[] favoritos = {new File("C:\\Users\\agus\\Desktop"), new File("C:\\Users\\agus\\Documents"), new File("C:\\Users\\agus\\Downloads"), new File("C:\\Users\\agus\\Pictures"), new File("C:\\")};
 	private JScrollPane scrollPane_1 = new JScrollPane();
 	private Properties propFile = new Properties();
-	private JPanel panel1;
 
 	public FileX(){
 		this("C:\\Users\\agus\\Desktop");
 	}
 
 	public FileX(String loc) {
-		tmpModel = null;
-		try {
-			propFile.load(new FileInputStream(new File("configuracion.properties")));
-			tmpModel = new DefaultTableModel();
-			tmpModel.setColumnCount(5);
-			
-			for (Object o : propFile.keySet()) {
-				if (o instanceof String) {
-					String s = (String) o;
-					File f = new File(propFile.getProperty(s));
-					Vector<Object> row = new Vector<Object>();
-					row.add(f.getName());
-					row.add("");
-					row.add("");
-					row.add("");
-					row.add(f);
-					tmpModel.addRow(row);
-				}
-			}
-		} catch (FileNotFoundException e) {
-			try {
-				new File("configuracion.properties").createNewFile();
-				int i = 0;
-				for (File favs : favoritos) {
-					propFile.setProperty(String.valueOf(i), favs.getPath());
-					i++;
-				}
-                
-                propFile.store(new FileWriter(new File("configuracion.properties")), "Rutas");
-			} catch (IOException e1) {
-				
-				e1.printStackTrace();
-			}
-			e.printStackTrace();
-		} catch (IOException e) {
-			
-			e.printStackTrace();
-		}
-
-
 		currentLocation = new File(loc);
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -95,7 +53,6 @@ public class FileX extends JFrame {
 				if (f.isDirectory() && f.exists()) {
 					//TODO asistir al usuario en la busqueda
 					accionEn(f);
-
 				}
 				else{
 					vAvisos = new AvisoGUI("Error, no se halla el directorio.", "Error al buscar el directorio", new Exception(""), false);
@@ -110,26 +67,59 @@ public class FileX extends JFrame {
 		tfLocation.setText(currentLocation.getAbsolutePath());
 
 		//Tabla de vinculos favoritos
-		
-
 		modeloFavs = new DefaultTableModel();
-		modeloFavs.setDataVector(null, columnNamesMain);
 		modeloFavs.setColumnCount(5);
-		if (tmpModel!=null) {
-			modeloFavs = tmpModel;
-		} else{
+		try {
+			propFile.load(new FileInputStream(new File("configuracion.properties")));
+			System.out.println("Leyendo vinculos...");
+			for (Object o : propFile.keySet()) {
+				if (o instanceof String) {
+					String s = (String) o;
+					File f = new File(propFile.getProperty(s));
+					Vector<Object> row = new Vector<Object>();
+					row.add(f.getName());
+					row.add("");
+					row.add("");
+					row.add("");
+					row.add(f);
+					modeloFavs.addRow(row);
+					System.out.println("Cargado el vinculo a " + f.getName());
+				}
+			}
+			System.out.println("Cargados todos los vinculos del archivo en el menú");
+		} catch (FileNotFoundException e) {
+			System.out.println("Archivo de vinculos no encontrado, creando...");
 			
-		//Guardar los vinculos favoritos por defecto (Array de rutas)
-		for (File f : favoritos) {
-			Vector<Object> row = new Vector<>();
-			row.add(f.getName());
-			row.add(f.getName());
-			row.add(f.getName());
-			row.add(f.getName());
-			row.add(f);
-			modeloFavs.addRow(row);
+			try {
+				new File("configuracion.properties").createNewFile();
+				int i = 0;
+				for (File favs : favoritos) {
+					propFile.setProperty(String.valueOf(i), favs.getPath());
+					i++;
+				}
+                
+                propFile.store(new FileWriter(new File("configuracion.properties")), "Rutas");
+				System.out.println("Archivo configuracion.properties creado.");
+				//Guardar los vinculos favoritos por defecto (Array de rutas)
+				for (File f : favoritos) {
+					Vector<Object> row = new Vector<>();
+					row.add(f.getName());
+					row.add(f.getName());
+					row.add(f.getName());
+					row.add(f.getName());
+					row.add(f);
+					modeloFavs.addRow(row);
+				}
+			} catch (IOException e1) {
+				
+				e1.printStackTrace();
+			}
+			
+		} catch (IOException e) {
+			
+			e.printStackTrace();
 		}
-	}
+	
 		tableFavs.addMouseListener(new MouseAdapter() { //Si se pulsa sobre la tabla de favoritos, la seleccion de la tabla principal se quita
 			@Override
 			public void mousePressed(MouseEvent e) {
@@ -235,11 +225,11 @@ public class FileX extends JFrame {
 					propFile.setProperty(String.valueOf(propFile.keySet().size()), f.getPath());
 
 				}
-				tableFavs.setModel(modeloFavs);
+				System.out.println("Se ha guardado " + propFile.getProperty(String.valueOf(propFile.keySet().size()-1)) + "En favoritos.");
 				try {
 					propFile.store(new FileWriter(new File("configuracion.properties")), "Rutas");
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
+					System.out.println("No se ha podido guardar la ruta en favoritos");
 					e1.printStackTrace();
 				}
 			}
