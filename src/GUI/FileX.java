@@ -5,17 +5,13 @@ import java.awt.Desktop;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Properties;
 import java.util.Vector;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.*;
-import javax.swing.JTable;
-import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import javax.swing.JTextField;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -24,23 +20,64 @@ public class FileX extends JFrame {
 	private static JPanel contentPane;
 	private static JTable table = new JTable();
 	private static JTable tableFavs = new JTable();
-	private static DefaultTableModel modelo, modeloFavs;
+	private static DefaultTableModel modelo, modeloFavs, tmpModel;
+	
 	private final static String[] columnNamesMain = {"Nombre", "Última modificación", "Tipo", "Tamaño"};
-
 	private JScrollPane scrollPane = new JScrollPane();
 	private static JTextField tfLocation;
 	private static File currentLocation;
-	private JButton btnAction, btnNuevo, btnBorrar;
+	private JButton btnAction, btnNuevo, btnBorrar, btnFavorito;
 	private JFrame vAvisos;
 	private final File[] favoritos = {new File("C:\\Users\\agus\\Desktop"), new File("C:\\Users\\agus\\Documents"), new File("C:\\Users\\agus\\Downloads"), new File("C:\\Users\\agus\\Pictures"), new File("C:\\")};
 	private JScrollPane scrollPane_1 = new JScrollPane();
+	private Properties propFile = new Properties();
+	private JPanel panel1;
 
 	public FileX(){
 		this("C:\\Users\\agus\\Desktop");
 	}
 
 	public FileX(String loc) {
-		
+		tmpModel = null;
+		try {
+			propFile.load(new FileInputStream(new File("configuracion.properties")));
+			tmpModel = new DefaultTableModel();
+			tmpModel.setColumnCount(5);
+			
+			for (Object o : propFile.keySet()) {
+				if (o instanceof String) {
+					String s = (String) o;
+					File f = new File(propFile.getProperty(s));
+					Vector<Object> row = new Vector<Object>();
+					row.add(f.getName());
+					row.add("");
+					row.add("");
+					row.add("");
+					row.add(f);
+					tmpModel.addRow(row);
+				}
+			}
+		} catch (FileNotFoundException e) {
+			try {
+				new File("configuracion.properties").createNewFile();
+				int i = 0;
+				for (File favs : favoritos) {
+					propFile.setProperty(String.valueOf(i), favs.getPath());
+					i++;
+				}
+                
+                propFile.store(new FileWriter(new File("configuracion.properties")), "Rutas");
+			} catch (IOException e1) {
+				
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
+		} catch (IOException e) {
+			
+			e.printStackTrace();
+		}
+
+
 		currentLocation = new File(loc);
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -67,16 +104,22 @@ public class FileX extends JFrame {
 				}
 			}
 		});
-		tfLocation.setBounds(20, 10, 1230, 39);
+		tfLocation.setBounds(20, 20, 1230, 29);
 		contentPane.add(tfLocation);
 		tfLocation.setColumns(10);
 		tfLocation.setText(currentLocation.getAbsolutePath());
 
-
+		//Tabla de vinculos favoritos
 		
+
 		modeloFavs = new DefaultTableModel();
 		modeloFavs.setDataVector(null, columnNamesMain);
 		modeloFavs.setColumnCount(5);
+		if (tmpModel!=null) {
+			modeloFavs = tmpModel;
+		} else{
+			
+		//Guardar los vinculos favoritos por defecto (Array de rutas)
 		for (File f : favoritos) {
 			Vector<Object> row = new Vector<>();
 			row.add(f.getName());
@@ -86,7 +129,8 @@ public class FileX extends JFrame {
 			row.add(f);
 			modeloFavs.addRow(row);
 		}
-		tableFavs.addMouseListener(new MouseAdapter() {
+	}
+		tableFavs.addMouseListener(new MouseAdapter() { //Si se pulsa sobre la tabla de favoritos, la seleccion de la tabla principal se quita
 			@Override
 			public void mousePressed(MouseEvent e) {
 				if (table.getSelectedRow()!=-1) {
@@ -100,10 +144,10 @@ public class FileX extends JFrame {
 		tableFavs.getColumnModel().removeColumn(tableFavs.getColumnModel().getColumn(3));
 		tableFavs.getColumnModel().removeColumn(tableFavs.getColumnModel().getColumn(2));
 		tableFavs.getColumnModel().removeColumn(tableFavs.getColumnModel().getColumn(1));
-		scrollPane_1.setBounds(10, 59, 286, 585);
+		scrollPane_1.setBounds(20, 59, 276, 585);
 		scrollPane_1.setViewportView(tableFavs);
 		contentPane.add(scrollPane_1);
-		table.addMouseListener(new MouseAdapter() {
+		table.addMouseListener(new MouseAdapter() { //Si se pulsa sobre la tabla principal, la seleccion que hubiera en la tabla de favoritos se va
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (tableFavs.getSelectedRow()!=-1) {
@@ -111,9 +155,6 @@ public class FileX extends JFrame {
 				}
 			}
 		});
-		
-	
-
 
 		table.setBounds(30, 10, 396, 243);
 		accionEn(currentLocation);
@@ -176,12 +217,38 @@ public class FileX extends JFrame {
 				}
 			}
 		});
-		btnBorrar.setBounds(210, 654, 85, 21);
+		btnBorrar.setBounds(211, 654, 85, 21);
 		contentPane.add(btnBorrar);
+		
+		btnFavorito = new JButton("Añadir a favorito");
+		btnFavorito.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(!table.getSelectionModel().isSelectionEmpty()){
+					File f = (File) modelo.getValueAt(table.getSelectedRow(), 4);
+					Vector<Object> row = new Vector<Object>();
+					row.add(f.getName());
+					row.add("");
+					row.add("");
+					row.add("");
+					row.add(f);
+					modeloFavs.addRow(row);
+					propFile.setProperty(String.valueOf(propFile.keySet().size()), f.getPath());
+
+				}
+				tableFavs.setModel(modeloFavs);
+				try {
+					propFile.store(new FileWriter(new File("configuracion.properties")), "Rutas");
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
+		btnFavorito.setBounds(306, 654, 85, 21);
+		contentPane.add(btnFavorito);
 		
 		
 	}
-
 
 	/**
 	 * Método para listar todos los items del directorio folder.
@@ -190,7 +257,7 @@ public class FileX extends JFrame {
 	 * Y se añade a la tabla.
 	 * @param folder el directorio del que se quieren listar los items.
 	 */
-	public static void fillTable(File folder) {
+	private static void fillTable(File folder, DefaultTableModel modelo) {
 			//Directorio superior
 			Vector<Object> row = new Vector<>();
 			try {
@@ -245,6 +312,7 @@ public class FileX extends JFrame {
 			}
 		}
 	}
+	
 	/**
 	 * Este método es llamado cada vez que se efectúe una acción en un archivo o directorio desde la aplicación.
 	 * Si es carpeta, limpia la GUI y se listan los items del directorio nuevo
@@ -256,7 +324,7 @@ public class FileX extends JFrame {
 			modelo = new DefaultTableModel();
 			modelo.setDataVector(null, columnNamesMain);
 			modelo.setColumnCount(5);
-			fillTable(new File(f.getPath()));
+			fillTable(new File(f.getPath()), modelo);
 			table.setModel(modelo);
 			table.getColumnModel().removeColumn(table.getColumnModel().getColumn(4));
 			contentPane.repaint();
@@ -279,7 +347,6 @@ public class FileX extends JFrame {
 
 	public static void refresh(){
 		accionEn(currentLocation);
-
 	}
 
 	/**
@@ -300,6 +367,7 @@ public class FileX extends JFrame {
 			}
 		}
 		current.delete();
-	} 
+	}
+
 
 }
