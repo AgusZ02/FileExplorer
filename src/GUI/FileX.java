@@ -18,18 +18,19 @@ import java.awt.event.MouseEvent;
 public class FileX extends JFrame {
 
 	private static JPanel contentPane;
-	private static JTable table = new JTable();
-	private static JTable tableFavs = new JTable();
+	private final static JTable table = new JTable();
+	private final static JTable tableFavs = new JTable();
 	private static DefaultTableModel modelo, modeloFavs;
 	private final static String[] columnNamesMain = {"Nombre", "Última modificación", "Tipo", "Tamaño"};
-	private JScrollPane scrollPane = new JScrollPane();
 	private static JTextField tfLocation;
 	private static File currentLocation;
-	private JButton btnAction, btnNuevo, btnBorrar, btnFavorito;
+	private final JButton btnAction, btnNuevo, btnBorrar, btnFavorito;
 	private JFrame vAvisos;
-	private final File[] favoritos = {new File("C:\\Users\\agus\\Desktop"), new File("C:\\Users\\agus\\Documents"), new File("C:\\Users\\agus\\Downloads"), new File("C:\\Users\\agus\\Pictures"), new File("C:\\")};
-	private JScrollPane scrollPane_1 = new JScrollPane();
-	private Properties propFile = new Properties();
+	private final File[] favoritos = {new File("C:\\Users\\agus\\Desktop"), new File("C:\\Users\\agus\\Documents"), new File("C:\\Users\\agus\\Downloads"), new File("C:\\Users\\agus\\Pictures")};
+	private final JScrollPane scrollPane_1 = new JScrollPane();
+	private final Properties propFile = new Properties();
+
+	private String[] row = new String[5];
 
 	public FileX(){
 		this("C:\\Users\\agus\\Desktop");
@@ -70,18 +71,13 @@ public class FileX extends JFrame {
 		modeloFavs = new DefaultTableModel();
 		modeloFavs.setColumnCount(5);
 		try {
-			propFile.load(new FileInputStream(new File("configuracion.properties")));
+			propFile.load(new FileInputStream(new File("pinned_paths.properties")));
 			System.out.println("Leyendo vinculos...");
 			for (Object o : propFile.keySet()) {
-				if (o instanceof String) {
-					String s = (String) o;
+				if (o instanceof String s) {
 					File f = new File(propFile.getProperty(s));
-					Vector<Object> row = new Vector<Object>();
-					row.add(f.getName());
-					row.add("");
-					row.add("");
-					row.add("");
-					row.add(f);
+					row[0] = f.getName();
+					row[4] = f.getPath();
 					modeloFavs.addRow(row);
 					System.out.println("Cargado el vinculo a " + f.getName());
 				}
@@ -91,23 +87,19 @@ public class FileX extends JFrame {
 			System.out.println("Archivo de vinculos no encontrado, creando...");
 			
 			try {
-				new File("configuracion.properties").createNewFile();
+				new File("pinned_paths.properties").createNewFile();
 				int i = 0;
 				for (File favs : favoritos) {
 					propFile.setProperty(String.valueOf(i), favs.getPath());
 					i++;
 				}
                 
-                propFile.store(new FileWriter(new File("configuracion.properties")), "Rutas");
-				System.out.println("Archivo configuracion.properties creado.");
+                propFile.store(new FileWriter(new File("pinned_paths.properties")), "Rutas");
+				System.out.println("Archivo pinned_paths.properties creado.");
 				//Guardar los vinculos favoritos por defecto (Array de rutas)
 				for (File f : favoritos) {
-					Vector<Object> row = new Vector<>();
-					row.add(f.getName());
-					row.add(f.getName());
-					row.add(f.getName());
-					row.add(f.getName());
-					row.add(f);
+					row[0] = f.getName();
+					row[4] = f.getPath();
 					modeloFavs.addRow(row);
 				}
 			} catch (IOException e1) {
@@ -148,6 +140,7 @@ public class FileX extends JFrame {
 
 		table.setBounds(30, 10, 396, 243);
 		accionEn(currentLocation);
+		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setBounds(306, 59, 944, 585);
 		scrollPane.setViewportView(table);
 		table.setDefaultEditor(Object.class, null);
@@ -158,12 +151,17 @@ public class FileX extends JFrame {
 		btnAction.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				File selectedFile = null;
-				if (tableFavs.getSelectionModel().isSelectionEmpty()) {
-					selectedFile = (File) modelo.getValueAt(table.getSelectedRow(), 4);	
+				try{if (tableFavs.getSelectionModel().isSelectionEmpty()) {
+					selectedFile = new File((String) modelo.getValueAt(table.getSelectedRow(), 4));
 				} else{
-					selectedFile = (File) modeloFavs.getValueAt(tableFavs.getSelectedRow(), 4);		
+					selectedFile = new File((String) modeloFavs.getValueAt(tableFavs.getSelectedRow(), 4));
 				}
-				accionEn(selectedFile);
+					accionEn(selectedFile);
+				} catch(NullPointerException e1){
+					JFrame frame = new AvisoGUI("Error, no se puede retroceder más", "Directorio raiz alcanzado", e1, false);
+					frame.setVisible(true);
+				}
+
 			}
 		});
 		btnAction.setBounds(20, 654, 85, 21);
@@ -186,13 +184,12 @@ public class FileX extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				File selectedFile = (File) modelo.getValueAt(table.getSelectedRow(), 4);					
 				// En caso de ser directorio, borra todos los datos.
-				
-				
+
 				if (selectedFile.isDirectory() && selectedFile.list().length > 0) {
 					
 					vAvisos = new AvisoGUI("Este directorio contiene: " + selectedFile.list().length + "items. Estás seguro?", "Confirmar eliminación de directorio", new Exception(""), true);
                     vAvisos.setVisible(true);
-					//TODO, borrar sólo si se elige "Aceptar" en la ventana de avisos.
+		 			//TODO, borrar sólo si se elige "Aceptar" en la ventana de avisos.
 					eliminarFicheros(selectedFile);
 					
 				}
@@ -213,19 +210,16 @@ public class FileX extends JFrame {
 		btnFavorito = new JButton("Añadir a favorito");
 		btnFavorito.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				int keySetSize = propFile.keySet().size();
 				if(!table.getSelectionModel().isSelectionEmpty()){
-					File f = (File) modelo.getValueAt(table.getSelectedRow(), 4);
-					Vector<Object> row = new Vector<Object>();
-					row.add(f.getName());
-					row.add("");
-					row.add("");
-					row.add("");
-					row.add(f);
+					File f = new File((String) modelo.getValueAt(table.getSelectedRow(), 4));
+					row[0] = f.getName();
+					row[4] = f.getPath();
 					modeloFavs.addRow(row);
-					propFile.setProperty(String.valueOf(propFile.keySet().size()), f.getPath());
+					propFile.setProperty(String.valueOf(keySetSize), f.getPath());
 
 				}
-				System.out.println("Se ha guardado " + propFile.getProperty(String.valueOf(propFile.keySet().size()-1)) + "En favoritos.");
+				System.out.println("Se ha guardado " + propFile.getProperty(String.valueOf(keySetSize-1)) + "En favoritos.");
 				try {
 					propFile.store(new FileWriter(new File("configuracion.properties")), "Rutas");
 				} catch (IOException e1) {
@@ -249,13 +243,14 @@ public class FileX extends JFrame {
 	 */
 	private static void fillTable(File folder, DefaultTableModel modelo) {
 			//Directorio superior
-			Vector<Object> row = new Vector<>();
+			//Vector<Object> row = new Vector<>();
+			String[] row = new String[5];
 			try {
-				row.add("///////DIRECTORIO ANTERIOR///////");
-				row.add("--------------");
-				row.add("--------------");
-				row.add("--------------");
-				row.add(new File(folder.getParent()));
+				row[0] = "///////DIRECTORIO ANTERIOR///////";
+				row[1] ="--------------";
+				row[2] = "--------------";
+				row[3] = "--------------";
+				row[4] = folder.getParent();
 				modelo.addRow(row);
 				
 			} catch (Exception e) {
@@ -263,39 +258,40 @@ public class FileX extends JFrame {
 			} finally{
 			
 				for (final File fileEntry : folder.listFiles()) {
-				row = new Vector<Object>();
+
 				
 				//Casilla de nombre de fichero
-				row.add(fileEntry.getName());
+				row[0] = fileEntry.getName();
 				
 				
 				//Casilla de fecha
-				row.add(new SimpleDateFormat("MM-dd-yyyy").format(new Date(fileEntry.lastModified())));
+				row[1] = new SimpleDateFormat("MM-dd-yyyy").format(new Date(fileEntry.lastModified()));
+
 				if (fileEntry.isDirectory()) {
 					//Casilla de tipo
-					row.add("Carpeta");
+					row[2] = "Carpeta";
 					//Casilla de tamaño (nulo)
 					try{
-						row.add(fileEntry.listFiles().length + " items");
+						row[3] = fileEntry.listFiles().length + " items";
 					} catch(NullPointerException e){
 						//continue; //<-- Esta línea para no mostrar directorios inaccesibles
-						row.add(0 + "/Inaccesible"); //<-- Esta línea para mostrar directorios inaccesibles
+						row[3] = 0 + "/Inaccesible"; //<-- Esta línea para mostrar directorios inaccesibles
 					}
 
 				} else {
 					//Casilla de tipo de archivo
 					String[] arr = fileEntry.getName().split("\\.");
 					if (arr.length == 2) {
-						row.add(arr[1]);
+						row[2] = arr[1];
 					} else{
-						row.add(arr[arr.length-1]);
+						row[2] = arr[arr.length-1];
 					}
 					//Casilla de tamaño. 
 					//TODO: Unidad de tamaño correcta
-					row.add(fileEntry.length() + " Bytes");
+					row[3] = fileEntry.length() + " Bytes";
 				}
 				//Fichero
-				row.add(fileEntry);
+				row[4] =fileEntry.getPath();
 				
 				modelo.addRow(row);
 				
