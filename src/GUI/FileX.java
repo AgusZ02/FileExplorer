@@ -182,26 +182,29 @@ public class FileX extends JFrame {
 		btnBorrar = new JButton("Eliminar");
 		btnBorrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				File selectedFile = (File) modelo.getValueAt(table.getSelectedRow(), 4);					
-				// En caso de ser directorio, borra todos los datos.
+				int[] indices = table.getSelectionModel().getSelectedIndices();
+				for (int i = 0; i < indices.length; i++) {
+					File selectedFile = new File((String)modelo.getValueAt(indices[i],4));
+					// En caso de ser directorio, borra todos los datos.
 
-				if (selectedFile.isDirectory() && selectedFile.list().length > 0) {
-					
-					vAvisos = new AvisoGUI("Este directorio contiene: " + selectedFile.list().length + "items. Estás seguro?", "Confirmar eliminación de directorio", new Exception(""), true);
-                    vAvisos.setVisible(true);
-		 			//TODO, borrar sólo si se elige "Aceptar" en la ventana de avisos.
-					eliminarFicheros(selectedFile);
-					
-				}
+					if (selectedFile.isDirectory() && selectedFile.list().length > 0) {
+
+						//vAvisos = new AvisoGUI("Este directorio contiene: " + selectedFile.list().length + "items. Estás seguro?", "Confirmar eliminación de directorio", new Exception(""), true);
+                	    //vAvisos.setVisible(true);
+		 				//TODO, borrar sólo si se elige "Aceptar" en la ventana de avisos.
+						eliminarFicheros(selectedFile);
+
+					}
 				
-				try {
-					selectedFile.delete();
-					accionEn(currentLocation);
-				} catch (Exception e3) {
-					vAvisos = new AvisoGUI("Error, no se ha podido eliminar.", "Error al eliminar", e3,  false);
-                    vAvisos.setVisible(true);
-					System.out.println("No se ha podido eliminar");
+					try {
+						selectedFile.delete();
+					} catch (Exception e3) {
+						vAvisos = new AvisoGUI("Error, no se ha podido eliminar.", "Error al eliminar", e3,  false);
+                	    vAvisos.setVisible(true);
+						System.out.println("No se ha podido eliminar");
+					}
 				}
+				accionEn(currentLocation);
 			}
 		});
 		btnBorrar.setBounds(211, 654, 85, 21);
@@ -313,8 +316,6 @@ public class FileX extends JFrame {
 			fillTable(new File(f.getPath()), modelo);
 			table.setModel(modelo);
 			table.getColumnModel().removeColumn(table.getColumnModel().getColumn(4));
-			contentPane.repaint();
-			table.repaint();
 			tfLocation.setText(f.getPath());
 			currentLocation = f;
 		} else if (f.isFile() && Desktop.isDesktopSupported()) {
