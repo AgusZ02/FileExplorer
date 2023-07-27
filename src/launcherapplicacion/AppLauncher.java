@@ -1,7 +1,7 @@
-package Main;
+package launcherapplicacion;
 import javax.swing.JFrame;
 
-import GUI.FileX;
+import gui.FileX;
 public class AppLauncher {
     public static void main(String[] args) {
         JFrame frame = new FileX();

@@ -1,4 +1,4 @@
-package GUI;
+package gui;
 
 
 import java.awt.Desktop;
@@ -6,7 +6,6 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
-import java.util.Vector;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.*;
@@ -26,19 +25,20 @@ public class FileX extends JFrame {
 	private static File currentLocation;
 	private final JButton btnAction, btnNuevo, btnBorrar, btnFavorito;
 	private JFrame vAvisos;
-	private final File[] favoritos = {new File("C:\\Users\\agus\\Desktop"), new File("C:\\Users\\agus\\Documents"), new File("C:\\Users\\agus\\Downloads"), new File("C:\\Users\\agus\\Pictures")};
+	private final static String userHome = System.getProperty("user.home");
+	private final static File[] favoritos = {new File(userHome + "\\Desktop"), new File(userHome+"\\Documents"), new File(userHome+"\\Downloads"), new File(userHome+"\\Pictures")};
 	private final JScrollPane scrollPane_1 = new JScrollPane();
 	private final Properties propFile = new Properties();
 
 	private String[] row = new String[5];
 
 	public FileX(){
-		this("C:\\Users\\agus\\Desktop");
+		this(favoritos[0]);
 	}
 
-	public FileX(String loc) {
-		currentLocation = new File(loc);
-		
+	public FileX(File currentLocation) {
+
+		System.out.println(userHome);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1280, 720);
 		contentPane = new JPanel();
@@ -144,6 +144,7 @@ public class FileX extends JFrame {
 		scrollPane.setBounds(306, 59, 944, 585);
 		scrollPane.setViewportView(table);
 		table.setDefaultEditor(Object.class, null);
+
 		contentPane.setLayout(null);
 		contentPane.add(scrollPane);
 		
@@ -204,7 +205,7 @@ public class FileX extends JFrame {
 						System.out.println("No se ha podido eliminar");
 					}
 				}
-				accionEn(currentLocation);
+				refresh();
 			}
 		});
 		btnBorrar.setBounds(211, 654, 85, 21);
@@ -224,7 +225,7 @@ public class FileX extends JFrame {
 				}
 				System.out.println("Se ha guardado " + propFile.getProperty(String.valueOf(keySetSize-1)) + "En favoritos.");
 				try {
-					propFile.store(new FileWriter(new File("configuracion.properties")), "Rutas");
+					propFile.store(new FileWriter(new File("pinned_paths.properties")), "Rutas");
 				} catch (IOException e1) {
 					System.out.println("No se ha podido guardar la ruta en favoritos");
 					e1.printStackTrace();
