@@ -18,13 +18,18 @@ public class FileX extends JFrame {
 
 	private static JPanel contentPane;
 	private final static JTable table = new JTable();
-	private final static JTable tableFavs = new JTable();
+	private final static JTable tableFavs = new JTable(){
+		@Override
+		public boolean isCellEditable(int row, int column) {
+			return false;
+		}
+	};
 	private static DefaultTableModel modelo, modeloFavs;
 	private final static String[] columnNamesMain = {"Nombre", "Última modificación", "Tipo", "Tamaño"};
 	private static JTextField tfLocation;
 	private static File currentLocation;
 	private final JButton btnAction, btnNuevo, btnBorrar, btnFavorito;
-	private JFrame vAvisos;
+
 	private final static String userHome = System.getProperty("user.home");
 	private final static File[] favoritos = {new File(userHome + "\\Desktop"), new File(userHome+"\\Documents"), new File(userHome+"\\Downloads"), new File(userHome+"\\Pictures")};
 	private final JScrollPane scrollPane_1 = new JScrollPane();
@@ -56,8 +61,7 @@ public class FileX extends JFrame {
 					accionEn(f);
 				}
 				else{
-					vAvisos = new AvisoGUI("Error, no se halla el directorio.", "Error al buscar el directorio", new Exception(""), false);
-                    vAvisos.setVisible(true);
+					JOptionPane.showMessageDialog(null,"Error, no se encuentra el directorio.");
 					System.out.println("Directorio no encontrado");
 				}
 			}
@@ -111,7 +115,19 @@ public class FileX extends JFrame {
 			
 			e.printStackTrace();
 		}
-	
+
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				System.out.println("Click1");
+				if (e.getClickCount()==2){
+					System.out.println("bien");
+					File selectedFile = new File((String) modelo.getValueAt(table.getSelectedRow(), 4));
+					accionEn(selectedFile);
+				}
+			}
+
+		});
 		tableFavs.addMouseListener(new MouseAdapter() { //Si se pulsa sobre la tabla de favoritos, la seleccion de la tabla principal se quita
 			@Override
 			public void mousePressed(MouseEvent e) {
@@ -119,9 +135,19 @@ public class FileX extends JFrame {
 					table.getSelectionModel().clearSelection();
 				}
 			}
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				System.out.println("Click1");
+				if (e.getClickCount()==2){
+					System.out.println("bien");
+					File selectedFile = new File((String) modeloFavs.getValueAt(tableFavs.getSelectedRow(), 4));
+					accionEn(selectedFile);
+				}
+			}
 		});
 		tableFavs.setModel(modeloFavs);
-		
+
 		tableFavs.getColumnModel().removeColumn(tableFavs.getColumnModel().getColumn(4));
 		tableFavs.getColumnModel().removeColumn(tableFavs.getColumnModel().getColumn(3));
 		tableFavs.getColumnModel().removeColumn(tableFavs.getColumnModel().getColumn(2));
@@ -159,8 +185,7 @@ public class FileX extends JFrame {
 				}
 					accionEn(selectedFile);
 				} catch(NullPointerException e1){
-					JFrame frame = new AvisoGUI("Error, no se puede retroceder más", "Directorio raiz alcanzado", e1, false);
-					frame.setVisible(true);
+					JOptionPane.showMessageDialog(null, "Error, no se puede retroceder más");
 				}
 
 			}
@@ -179,7 +204,7 @@ public class FileX extends JFrame {
 		});
 		btnNuevo.setBounds(115, 654, 85, 21);
 		contentPane.add(btnNuevo);
-		
+
 		btnBorrar = new JButton("Eliminar");
 		btnBorrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -189,9 +214,7 @@ public class FileX extends JFrame {
 					// En caso de ser directorio, borra todos los datos.
 
 					if (selectedFile.isDirectory() && selectedFile.list().length > 0) {
-
-						//vAvisos = new AvisoGUI("Este directorio contiene: " + selectedFile.list().length + "items. Estás seguro?", "Confirmar eliminación de directorio", new Exception(""), true);
-                	    //vAvisos.setVisible(true);
+						JOptionPane.showMessageDialog(null, "Este directorio contiene: " + selectedFile.list().length + "items. Estás seguro?");
 		 				//TODO, borrar sólo si se elige "Aceptar" en la ventana de avisos.
 						eliminarFicheros(selectedFile);
 
@@ -200,8 +223,7 @@ public class FileX extends JFrame {
 					try {
 						selectedFile.delete();
 					} catch (Exception e3) {
-						vAvisos = new AvisoGUI("Error, no se ha podido eliminar.", "Error al eliminar", e3,  false);
-                	    vAvisos.setVisible(true);
+						JOptionPane.showMessageDialog(null, "No se ha podido eliminar.");
 						System.out.println("No se ha podido eliminar");
 					}
 				}
@@ -324,8 +346,7 @@ public class FileX extends JFrame {
 			try {
 				d.open(f);
 			} catch (IOException e1) {
-				JFrame vAvisos = new AvisoGUI("Error, no se puede abrir el archivo.", "Error al abrir el archivo.", e1, false);
-                vAvisos.setVisible(true);
+				JOptionPane.showMessageDialog(null,"Error, no se puede abrir el archivo");
 				e1.printStackTrace();
 				System.out.println("No se pudo abrir el archivo");
 			}
@@ -356,6 +377,7 @@ public class FileX extends JFrame {
 		}
 		current.delete();
 	}
+
 
 
 }

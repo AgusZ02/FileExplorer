@@ -38,8 +38,8 @@ public class AvisoGUI extends JFrame{
 		if (e!=null) {
 			textArea = new JTextArea();
 			textArea.setBounds(10, 81, 416, 116);
-			getContentPane().add(textArea);
-		}
+			textArea.setText(e.getMessage());
+			getContentPane().add(textArea);		}
 		
         if (confirmacion) {
             btnAceptar.setBounds(110, 232, 85, 21);
