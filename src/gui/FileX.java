@@ -208,26 +208,45 @@ public class FileX extends JFrame {
 		btnBorrar = new JButton("Eliminar");
 		btnBorrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int[] indices = table.getSelectionModel().getSelectedIndices();
-				for (int i = 0; i < indices.length; i++) {
-					File selectedFile = new File((String)modelo.getValueAt(indices[i],4));
-					// En caso de ser directorio, borra todos los datos.
-
-					if (selectedFile.isDirectory() && selectedFile.list().length > 0) {
-						JOptionPane.showMessageDialog(null, "Este directorio contiene: " + selectedFile.list().length + "items. Estás seguro?");
-		 				//TODO, borrar sólo si se elige "Aceptar" en la ventana de avisos.
-						eliminarFicheros(selectedFile);
-
+				int[] indices;
+				if (tableFavs.isColumnSelected(0)) {
+					indices = tableFavs.getSelectionModel().getSelectedIndices();
+					for (int i : indices){
+						String path =(String) modeloFavs.getValueAt(i,4);
+						modeloFavs.removeRow(i);
+						for (Object o : propFile.keySet()){
+							if (o instanceof String s && propFile.getProperty(s).equals(path)){
+								propFile.remove(s);
+							}
+						}
 					}
-				
-					try {
-						selectedFile.delete();
-					} catch (Exception e3) {
+					try{
+						propFile.store(new FileWriter(new File("pinned_paths.properties")), "Rutas");
+						System.out.println("Cambios guardados?");
+					}catch(IOException e2){
 						JOptionPane.showMessageDialog(null, "No se ha podido eliminar.");
-						System.out.println("No se ha podido eliminar");
 					}
+
+
+				} else {
+					indices = table.getSelectionModel().getSelectedIndices();
+					for (int i = 0; i < indices.length; i++) {
+						File selectedFile = new File((String) modelo.getValueAt(indices[i], 4));
+						// En caso de ser directorio, borra todos los datos.
+						if (selectedFile.isDirectory() && selectedFile.list().length > 0) {
+							JOptionPane.showMessageDialog(null, "Este directorio contiene: " + selectedFile.list().length + "items. Estás seguro?");
+							//TODO, borrar sólo si se elige "Aceptar" en la ventana de avisos.
+							eliminarFicheros(selectedFile);
+						}
+						try {
+							selectedFile.delete();
+						} catch (Exception e3) {
+							JOptionPane.showMessageDialog(null, "No se ha podido eliminar.");
+							System.out.println("No se ha podido eliminar");
+						}
+					}
+					refresh();
 				}
-				refresh();
 			}
 		});
 		btnBorrar.setBounds(211, 654, 85, 21);
