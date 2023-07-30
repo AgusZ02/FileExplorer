@@ -1,18 +1,21 @@
-## Getting Started
+## Explorador de archivos
 
-Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
+Un explorador ligero y rápido escrito enteramente en Java.
 
-## Folder Structure
+## Estructura del proyecto
 
-The workspace contains two folders by default, where:
+- `src`: la carpeta con el código fuente.
+- `lib`: dependencias.
+- `bin`: archivos compilados.
 
-- `src`: the folder to maintain sources
-- `lib`: the folder to maintain dependencies
+## Características
 
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
-
-> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
-
-## Dependency Management
-
-The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).
+Este programa cumple las siguientes funciones:
+- Interactuar con archivos o carpetas (Doble click o botón de aceptar)
+- Escribir rutas en la barra superior
+- Eliminar ficheros
+- Crear carpetas y archivos.
+- Barra de vínculos destacados por el usuario.
+- Copiar/Pegar archivos y carpetas.
+- Leer archivos comprimidos y descomprimirlos.
+- Búsqueda de archivos
