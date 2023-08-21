@@ -16,6 +16,3 @@ Este programa cumple las siguientes funciones:
 - Eliminar ficheros
 - Crear carpetas y archivos.
 - Barra de vínculos destacados por el usuario.
-- Copiar/Pegar archivos y carpetas.
-- Leer archivos comprimidos y descomprimirlos.
-- Búsqueda de archivos
