@@ -119,7 +119,6 @@ public class FileX extends JFrame {
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				System.out.println("Click1");
 				if (e.getClickCount()==2){
 					System.out.println("bien");
 					File selectedFile = new File((String) modelo.getValueAt(table.getSelectedRow(), 4));
